@@ -1,6 +1,6 @@
 /****** Object:  Function [dbo].[fn_NakopVedYear]    Committed by VersionSQL https://www.versionsql.com ******/
 
-CREATE FUNCTION [dbo].[fn_NakopVedYear](@project varchar(32))
+CREATE FUNCTION [fn_NakopVedYear](@project varchar(32))
 RETURNS TABLE 
 AS
 RETURN 
@@ -140,7 +140,7 @@ with
 		LEFT OUTER JOIN op			AS p ON m.SYS_ID	= p.Что
 		LEFT OUTER JOIN os			as g on m.SYS_ID	= g.Что
 		LEFT OUTER JOIN st			as s on m.SYS_ID	= s.Что
-		where Year(m.ДатаМХ1) = YEAR(getdate()) or m.ДатаМХ1 >= DATEADD(mm,-3,getdate())  or g.КолО <> 0
+		where Year(m.ДатаМХ1) = YEAR(getdate()) or m.ДатаМХ1 >= DATEADD(mm,-3,getdate())  or g.КолО <> 0 or YEAR(p.Дата) = YEAR(getdate())
 	)
 
 	--- Вывод
