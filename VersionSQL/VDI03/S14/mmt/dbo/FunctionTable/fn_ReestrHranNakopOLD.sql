@@ -62,7 +62,14 @@ RETURN
 			from		fn_хНомос(@project, @dk)
 			group by	Где
 	) as v on o.Что=v.Где
-	where	o.ТипГ in ('Склад','Сектор','Место','Груз') --,'Тара')
+	left outer join fn_хНомос(@project, @dk) o2 on o.Где = o2.Что and o2.Количество>0 --and o2.ТипЧ ='Груз'
+	left outer join fn_хНомос(@project, @dk) o3 on o2.Где= o3.Что --and o3.ТипЧ  = 'Тара'
+	where	o.ТипГ in ('Склад','Сектор','Место','Груз')  --,'Тара')
+		and  (CASE 
+			WHEN (o2.типЧ = 'Груз') AND o3.Где IS NULL THEN 1  -- внутритарка в грузоместе, груз в контейнере, контейнер не у нас (1) (9) - у нас
+			WHEN (o.типг = 'Груз')  AND o2.Где IS NULL THEN 2  -- 
+		ELSE 9 END = 9)
+
 --*/
 
 	--	-- остатки
