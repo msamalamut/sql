@@ -66,6 +66,8 @@ RETURN
 	left outer join fn_хНомос(@project, @dk) o3 on o2.Где= o3.Что --and o3.ТипЧ  = 'Тара'
 	where	o.ТипГ in ('Склад','Сектор','Место','Груз')  --,'Тара')
 		and  (CASE 
+			-- товар в грузоместе и грузоместо на складе
+			WHEN (o2.типЧ = 'Груз') AND o2.ТипГ in ('Склад','Сектор','Место') THEN 9
 			WHEN (o2.типЧ = 'Груз') AND o3.Где IS NULL THEN 1  -- внутритарка в грузоместе, груз в контейнере, контейнер не у нас (1) (9) - у нас
 			WHEN (o.типг = 'Груз')  AND o2.Где IS NULL THEN 2  -- 
 		ELSE 9 END = 9)
@@ -173,9 +175,12 @@ RETURN
 	, case when a.Мест is not null /*and m.Тип = 'Товар'*/ then a.Нетто end Нетто
 	, case when a.Мест is not null /*and m.Тип = 'Товар'*/ then a.Брутто end Брутто
 	*/
+	/*osmor 07042020 что бы вес выводился для всего
 	, case when a.Мест is not null and m.Тип = 'Груз' then Null else a.Нетто end Нетто
 	, case when a.Мест is not null and m.Тип = 'Груз' then Null else a.Брутто end Брутто
-
+	*/
+	,a.Нетто Нетто
+	,a.Брутто Брутто
 	, a.Операция, a.Номер, a.Транспорт, u.Цена
 	, a.npp, m.Код mtr
 	, m.тип ТмцТип
