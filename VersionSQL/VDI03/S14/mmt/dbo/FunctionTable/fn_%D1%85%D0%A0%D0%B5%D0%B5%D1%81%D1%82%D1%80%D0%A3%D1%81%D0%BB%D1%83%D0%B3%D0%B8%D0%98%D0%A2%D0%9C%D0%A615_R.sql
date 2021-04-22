@@ -1,11 +1,5 @@
 /****** Object:  Function [dbo].[fn_хРеестрУслугиИТМЦ15_R]    Committed by VersionSQL https://www.versionsql.com ******/
 
--- =============================================
--- Author:		<osmor>
--- Create date: <24052020>
--- Description:	<Реестр услуг Шлюмберже плюс ТМЦ из операций v15>
---Для ПРР цена3 по партиям до 2020 делится на 2 для партий после 2020 равна 0
--- =============================================
 CREATE FUNCTION [dbo].[fn_хРеестрУслугиИТМЦ15_R]
 (	
 	@project nvarchar(255),
@@ -28,6 +22,7 @@ RETURN
 			[Тип Операции],
 			TC,
 			Сегмент,
+			Заявка [Номер заказа], --osmor 29.09.2020
 			Поклажедатель,
 			[Дата партии], -- osmor 14.05.2020 
 			Партия,
@@ -86,13 +81,14 @@ from (
 				cast(u.Цена2*(case when u.ЕИК='Тоннаж' then s.Тоннаж when u.ЕИК='Мест' then s.мест else null end) as money) Стоимость2,
 				cast(
 					case 
-						when u.Код <10  and a.Тип = 'Выдача'  then 
+					--	when u.Код <10  and a.Тип = 'Выдача'  then 
+					when u.код  IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 111, 112, 113,  115, 116, 117, 118) and a.Тип = 'Выдача' then
 							case 
 								when YEAR(m.ПартияДата) <2020 then u.Цена3/2 
 								 else null
 							end
 
-						when u.код = 23 and a.Тип = 'Перемещения'  then
+						when (u.код = 23 or u.код = 126) and a.Тип = 'Перемещения'  then
 							case 
 								when YEAR(m.ПартияДата) <2020 then u.Цена3
 								 else null
@@ -101,19 +97,20 @@ from (
 						 end
 						  as money ) Цена3,
 				cast(case 
-						when u.Код <10  and a.Тип = 'Выдача'  then 
+					--	when u.Код <10  and a.Тип = 'Выдача'  then 
+					when u.код  IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 111, 112, 113,  115, 116, 117, 118) and a.Тип = 'Выдача' then
 							case 
 								when YEAR(m.ПартияДата) <2020 then u.Цена3/2 
 								 else null
 							end
 
-						when u.код = 23 and a.Тип = 'Перемещения'  then
+						when (u.код = 23 or u.код = 126) and a.Тип = 'Перемещения'  then
 							case 
 								when YEAR(m.ПартияДата) <2020 then u.Цена3
 								 else null
 							end
 						else u.Цена3
-						end *
+						 end *
 				(case when u.ЕИК='Тоннаж' then
 					 s.Тоннаж when u.ЕИК='Мест' then s.мест else null end) 
 				as money) Стоимость3,
